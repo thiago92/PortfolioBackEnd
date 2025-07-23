@@ -20,6 +20,16 @@ namespace Infrastructure.Mappings
 
             builder.Property(u => u.CreatedDate)
                 .IsRequired();
+
+            builder.Property(u => u.PasswordHash)
+                .IsRequired()
+                .HasMaxLength(256);
+
+            builder.HasOne(u => u.Role)
+                .WithMany()
+                .HasForeignKey(u => u.RoleId)
+                .OnDelete(DeleteBehavior.Cascade);
+
         }
     }
 }

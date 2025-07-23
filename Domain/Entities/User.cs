@@ -7,6 +7,7 @@
         public required string Email { get; set; }
         public required string PasswordHash { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
-        public required string Role { get; set; }
+        public Guid RoleId { get; set; }
+        public Role Role { get; set; } = null!;
     }
 }
