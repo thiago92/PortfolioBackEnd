@@ -8,6 +8,6 @@
         public bool CanCreate { get; set; }
         public bool CanEdit { get; set; }
         public bool CanDelete { get; set; }
-        public ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
+        public virtual ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
     }
 }

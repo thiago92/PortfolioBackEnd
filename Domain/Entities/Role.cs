@@ -5,7 +5,7 @@
         public Guid Id { get; set; }
         public required string Name { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
-        public ICollection<User> Users { get; set; } = new List<User>();
-        public ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
+        public virtual ICollection<User> Users { get; set; } = new List<User>();
+        public virtual ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
     }
 }
