@@ -9,7 +9,7 @@
         public required string AltImage { get; set; }
         public bool IsFreelance { get; set; } = false;
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
-        public ICollection<WorkSkill> WorkSkills { get; set; } = new List<WorkSkill>();
+        public virtual ICollection<WorkSkill>? WorkSkills { get; set; }
 
     }
 }

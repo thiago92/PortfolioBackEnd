@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Infrastructure.FiltersModel
+﻿namespace Infrastructure.FiltersModel
 {
-    internal class FilterRolePermissionTable
+    public class FilterRolePermissionTable
     {
+        public Guid? RoleIdGuid { get; set; }
+        public Guid? PermissionIdGuid { get; set; }
+        public string[]? Includes { get; set; }
+        public int PageSize { get; set; } = 10;
+        public int PageNumber { get; set; } = 1;
     }
 }

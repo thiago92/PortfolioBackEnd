@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Infrastructure.FiltersModel
+﻿namespace Infrastructure.FiltersModel
 {
-    internal class FilterWorkSkillById
+    public class FilterWorkSkillById
     {
+        public Guid Id { get; set; }
+        public string[]? Includes { get; set; }
     }
 }
