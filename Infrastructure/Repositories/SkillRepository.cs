@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Interfaces.IRepositories
+namespace Infrastructure.Repositories
 {
-    internal class IRole
+    internal class SkillRepository
     {
     }
 }

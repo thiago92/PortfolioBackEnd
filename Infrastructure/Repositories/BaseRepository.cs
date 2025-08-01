@@ -1,8 +1,11 @@
 ﻿using Infrastructure.Context;
 using Infrastructure.Interfaces.IRepositories;
-using Infrastructure.Notifications;
+using Infrastructure.FiltersModel;
+using Infrastructure.FunctionsDatabase;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using System.Reflection;
+using Infrastructure.Notifications;
 
 namespace Infrastructure.Repositories
 {
@@ -66,6 +69,58 @@ namespace Infrastructure.Repositories
             }
 
             return query.FirstOrDefault(expression);
+        }
+
+        public (TEntity, bool) GetElementEqual(FilterByItem filterByItem)
+        {
+            if (filterByItem.Includes != null && !ValidadeIncludes(filterByItem.Includes)) return (null, true);
+
+            var parameter = Expression.Parameter(typeof(TEntity), "x");
+            var member = Expression.Property(parameter, filterByItem.Field);
+            var constant = Expression.Constant(filterByItem.Value);
+            Expression body;
+
+            if (filterByItem.Key == "Equal") body = Expression.Equal(member, constant);
+
+            else body = Expression.NotEqual(member, constant);
+
+            var lambda = Expression.Lambda<Func<TEntity, bool>>(body, parameter);
+            return (GetElementByExpression(lambda, filterByItem.Includes), false);
+        }
+
+        public (FilterReturn<TEntity>, bool) GetFilters(Dictionary<string, string> filters, int pageSize, int pageNumber, params string[] includes)
+        {
+            IQueryable<TEntity> query = _dbSet;
+
+            if (includes is not null)
+            {
+                if (ValidadeIncludes(includes)) query = includes.Aggregate(query, (current, include) => current.Include(include));
+
+                else return (null, true);
+            }
+
+            return (query.ApplyDynamicFilters(filters, pageSize, pageNumber), false);
+        }
+
+        public bool ValidadeIncludes(string[] includes)
+        {
+            foreach (var include in includes)
+            {
+                var properties = include.Split('.');
+                var type = typeof(TEntity);
+
+                foreach (var property in properties)
+                {
+                    var propertyInfo = type.GetProperty(property, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                    if (propertyInfo is null)
+                    {
+                        _notificationContext.AddNotification($"Não é valido esse include: {include}");
+                        return false;
+                    }
+                    type = propertyInfo.PropertyType;
+                }
+            }
+            return true;
         }
 
         public void Dispose()

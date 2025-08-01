@@ -1,16 +1,20 @@
 ﻿using Infrastructure.Context;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.DependencyInjection
 {
     public static class AddPersistenceDependencyInjection
     {
-        public static ISericeCollection PersistenceDependencyInjection(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection PersistenceDependencyInjection(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
+                options.UseMySql(
+                    configuration.GetConnectionString("DefaultConnection"),
+                    new MySqlServerVersion(new Version(10, 5, 0))
+                );
                 options.EnableDetailedErrors();
                 options.EnableSensitiveDataLogging();
             });
