@@ -38,32 +38,33 @@ namespace Infrastructure.Repositories
             if (filter.SkillIdGuid.HasValue)
                 filters.Add(nameof(WorkSkill.SkillId), filter.SkillIdGuid.ToString());
 
-            (var result, bool validadeIncludes) = GetFilters(filters, filter.PageSize, filter.PageNumber, filter.Includes);
+            var (result, validadeIncludes) = GetFilters(filters, filter.PageSize, filter.PageNumber, filter.Includes);
 
             return result;
         }
 
         public bool ValidateInput(object dto, bool isUpdate, WorkSkill? existingWorkSkill = null)
         {
-            var isValid = true;
             dynamic workSkillDto = dto;
-
-            if (!IsWorkSkillCombinationUnique(existingWorkSkill, workSkillDto.WorkId, workSkillDto.SkillId))
-                isValid = false;
-
-            return isValid;
+            return IsWorkSkillCombinationUnique(existingWorkSkill, workSkillDto.WorkId, workSkillDto.SkillId);
         }
 
         private bool IsWorkSkillCombinationUnique(WorkSkill? existingWorkSkill, Guid workId, Guid skillId)
         {
-            if ((existingWorkSkill == null || existingWorkSkill.WorkId != workId || existingWorkSkill.SkillId != skillId)
-                && GetByElement(new FilterByItem
-                {
-                    Field = "WorkId",
-                    Value = workId.ToString(),
-                    Key = "Equal"
-                }) is WorkSkill existingByWork
-                && existingByWork.SkillId == skillId)
+            var isSameAsExisting = existingWorkSkill != null &&
+                                   existingWorkSkill.WorkId == workId &&
+                                   existingWorkSkill.SkillId == skillId;
+
+            if (isSameAsExisting) return true;
+
+            var existingByWork = GetByElement(new FilterByItem
+            {
+                Field = "WorkId",
+                Value = workId.ToString(),
+                Key = "Equal"
+            });
+
+            if (existingByWork != null && existingByWork.SkillId == skillId)
             {
                 _notificationContext.AddNotification("Essa combinação de WorkId e SkillId já está cadastrada.");
                 return false;

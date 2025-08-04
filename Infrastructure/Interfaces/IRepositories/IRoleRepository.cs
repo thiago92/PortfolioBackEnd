@@ -3,7 +3,7 @@ using Infrastructure.FiltersModel;
 
 namespace Infrastructure.Interfaces.IRepositories
 {
-    public interface IRoleRepositoryRepository : IBaseRepository<Role>
+    public interface IRoleRepository : IBaseRepository<Role>
     {
         Role GetByElement(FilterByItem filterByItem);
         FilterReturn<Role> GetFilter(FilterRoleTable filter);

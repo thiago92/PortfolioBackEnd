@@ -10,7 +10,7 @@ namespace Infrastructure.DependencyInjection
         {
             repository.AddScoped<IPermissionRepository, PermissionRepository>();
             repository.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
-            repository.AddScoped<IRoleRepositoryRepository, RoleRepositoryRepository>();
+            repository.AddScoped<IRoleRepository, RoleRepository>();
             repository.AddScoped<ISkillRepository, SkillRepository>();
             repository.AddScoped<IUserRepository, UserRepository>();
             repository.AddScoped<IWorkRepository, WorkRepository>();

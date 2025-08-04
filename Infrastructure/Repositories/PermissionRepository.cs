@@ -9,18 +9,24 @@ namespace Infrastructure.Repositories
     public class PermissionRepository : BaseRepository<Permission>, IPermissionRepository
     {
         private readonly NotificationContext _notificationContext;
-        public PermissionRepository(AppDbContext context, IUnitOfWork unitOfWork, NotificationContext notificationContext) : base(context, unitOfWork, notificationContext)
+        public PermissionRepository(
+            AppDbContext context,
+            IUnitOfWork unitOfWork,
+            NotificationContext notificationContext
+        ) : base(context, unitOfWork, notificationContext)
         {
             _notificationContext = notificationContext;
         }
 
         public Permission GetByElement(FilterByItem filterByItem)
         {
-            (Permission permission, bool validadeIncludes) = GetElementEqual(filterByItem);
+            var (permission, includesValid) = GetElementEqual(filterByItem);
 
-            if(validadeIncludes) return permission;
+            if (!includesValid)
+                return permission;
 
-            if(filterByItem.Field == "Id" && permission is null) _notificationContext.AddNotification("Registro não encontrado");
+            if (filterByItem.Field == nameof(Permission.Id) && permission is null)
+                _notificationContext.AddNotification("Permissão não encontrada.");
 
             return permission;
         }
@@ -29,22 +35,13 @@ namespace Infrastructure.Repositories
         {
             var filters = new Dictionary<string, string>();
 
-            if (!string.IsNullOrEmpty(filter.ResourceContains))
-                filters.Add(nameof(filter.ResourceContains), filter.ResourceContains);
+            TryAddFilter(filters, nameof(filter.ResourceContains), filter.ResourceContains);
+            TryAddFilter(filters, nameof(filter.CanViewEqual), filter.CanViewEqual?.ToString());
+            TryAddFilter(filters, nameof(filter.CanCreateEqual), filter.CanCreateEqual?.ToString());
+            TryAddFilter(filters, nameof(filter.CanEditEqual), filter.CanEditEqual?.ToString());
+            TryAddFilter(filters, nameof(filter.CanDeleteEqual), filter.CanDeleteEqual?.ToString());
 
-            if (filter.CanViewEqual.HasValue)
-                filters.Add(nameof(filter.CanViewEqual), filter.CanViewEqual.Value.ToString());
-
-            if (filter.CanCreateEqual.HasValue)
-                filters.Add(nameof(filter.CanCreateEqual), filter.CanCreateEqual.Value.ToString());
-
-            if (filter.CanEditEqual.HasValue)
-                filters.Add(nameof(filter.CanEditEqual), filter.CanEditEqual.Value.ToString());
-
-            if (filter.CanDeleteEqual.HasValue)
-                filters.Add(nameof(filter.CanDeleteEqual), filter.CanDeleteEqual.Value.ToString());
-
-            (var result, bool validadeIncludes) = GetFilters(filters, filter.PageSize, filter.PageNumber, filter.Includes);
+            var (result, _) = GetFilters(filters, filter.PageSize, filter.PageNumber, filter.Includes);
 
             return result;
         }
@@ -54,20 +51,37 @@ namespace Infrastructure.Repositories
             var isValid = true;
             dynamic permissionDto = dto;
 
-            if (!IsEmailInUse(existingPermission, permissionDto.Email)) isValid = false;
+            if (!IsEmailUnique(existingPermission, permissionDto.Email))
+                isValid = false;
 
             return isValid;
         }
 
-        private bool IsEmailInUse(object? existingPermission, string email)
+        private bool IsEmailUnique(object existingPermission, string email)
         {
-            if ((existingPermission == null || ((dynamic)existingPermission).Email != email) &&
-                GetByElement(new FilterByItem { Field = "Email", Value = email, Key = "Equal" }) is not null)
+            var emailInUse = GetByElement(new FilterByItem
             {
-                _notificationContext.AddNotification("Esse email já está cadastrado.");
+                Field = "Email",
+                Value = email,
+                Key = "Equal"
+            }) is not null;
+
+            var isSameAsExisting = existingPermission is not null &&
+                                   ((dynamic)existingPermission).Email == email;
+
+            if (!isSameAsExisting && emailInUse)
+            {
+                _notificationContext.AddNotification("Esse e-mail já está cadastrado.");
                 return false;
             }
+
             return true;
+        }
+
+        private void TryAddFilter(Dictionary<string, string> filters, string key, string? value)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+                filters[key] = value;
         }
     }
 }

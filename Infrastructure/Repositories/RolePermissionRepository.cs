@@ -9,18 +9,24 @@ namespace Infrastructure.Repositories
     public class RolePermissionRepository : BaseRepository<RolePermission>, IRolePermissionRepository
     {
         private readonly NotificationContext _notificationContext;
-        public RolePermissionRepository(AppDbContext context, IUnitOfWork unitOfWork, NotificationContext notificationContext) : base(context, unitOfWork, notificationContext)
+
+        public RolePermissionRepository(
+            AppDbContext context,
+            IUnitOfWork unitOfWork,
+            NotificationContext notificationContext
+        ) : base(context, unitOfWork, notificationContext)
         {
             _notificationContext = notificationContext;
         }
 
         public RolePermission GetByElement(FilterByItem filterByItem)
         {
-            (RolePermission rolePermission, bool validadeIncludes) = GetElementEqual(filterByItem);
+            var (rolePermission, includesValid) = GetElementEqual(filterByItem);
 
-            if (validadeIncludes) return rolePermission;
-
-            if (filterByItem.Field == "Id" && rolePermission is null) _notificationContext.AddNotification("Registro não encontrado");
+            if (!includesValid && filterByItem.Field == nameof(RolePermission.Id) && rolePermission is null)
+            {
+                _notificationContext.AddNotification("Registro não encontrado.");
+            }
 
             return rolePermission;
         }
@@ -29,36 +35,22 @@ namespace Infrastructure.Repositories
         {
             var filters = new Dictionary<string, string>();
 
-            if (filter.PermissionIdGuid.HasValue)
-                filters.Add(nameof(RolePermission.PermissionId), filter.PermissionIdGuid.ToString());
+            TryAddFilter(filters, nameof(RolePermission.PermissionId), filter.PermissionIdGuid?.ToString());
+            TryAddFilter(filters, nameof(RolePermission.RoleId), filter.RoleIdGuid?.ToString());
 
-            if (filter.RoleIdGuid.HasValue)
-                filters.Add(nameof(RolePermission.RoleId), filter.RoleIdGuid.ToString());
-
-            (var result, bool validadeIncludes) = GetFilters(filters, filter.PageSize, filter.PageNumber, filter.Includes);
-
+            var (result, _) = GetFilters(filters, filter.PageSize, filter.PageNumber, filter.Includes);
             return result;
         }
 
-        public bool ValidateInput(object dto, bool isUpdate, RolePermission existingRolePermission = null)
+        public bool ValidateInput(object dto, bool isUpdate, RolePermission? existingRolePermission = null)
         {
-            var isValid = true;
-            dynamic rolePermissionDto = dto;
-
-            if (!IsEmailInUse(existingRolePermission, rolePermissionDto.Email)) isValid = false;
-
-            return isValid;
+            return true;
         }
 
-        private bool IsEmailInUse(object? existingRolePermission, string email)
+        private void TryAddFilter(Dictionary<string, string> filters, string key, string? value)
         {
-            if ((existingRolePermission == null || ((dynamic)existingRolePermission).Email != email) &&
-                GetByElement(new FilterByItem { Field = "Email", Value = email, Key = "Equal" }) is not null)
-            {
-                _notificationContext.AddNotification("Esse email já está cadastrado.");
-                return false;
-            }
-            return true;
+            if (!string.IsNullOrWhiteSpace(value))
+                filters[key] = value;
         }
     }
 }
