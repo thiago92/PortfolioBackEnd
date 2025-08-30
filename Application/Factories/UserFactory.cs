@@ -21,19 +21,21 @@ public class UserFactory : IUserFactory
         };
     }
 
-    // Criar um UserCreateDto vazio
+    // Replace all occurrences of 'PasswordHash' with 'Password' for UserCreateDto
+
     public UserCreateDto CreateUserCreateDto()
     {
         return new UserCreateDto
         {
             UserName = string.Empty,
             Email = string.Empty,
-            PasswordHash = string.Empty,
+            Password = string.Empty,
             RoleId = Guid.Empty
         };
     }
 
-    // Criar um UserReadDto vazio
+    // Fix: Remove references to PasswordHash in UserReadDto creation and mapping
+
     public UserReadDto CreateUserReadDto()
     {
         return new UserReadDto
@@ -41,13 +43,13 @@ public class UserFactory : IUserFactory
             Id = Guid.NewGuid(),
             UserName = string.Empty,
             Email = string.Empty,
-            PasswordHash = string.Empty,
             CreatedDate = DateTime.UtcNow,
             RoleId = Guid.Empty
         };
     }
 
-    // Criar um UserUpdateDto vazio
+    // Replace all references to PasswordHash with Password for UserUpdateDto
+
     public UserUpdateDto CreateUserUpdateDto()
     {
         return new UserUpdateDto
@@ -55,7 +57,7 @@ public class UserFactory : IUserFactory
             Id = Guid.NewGuid(),
             UserName = string.Empty,
             Email = string.Empty,
-            PasswordHash = string.Empty,
+            Password = string.Empty,
             RoleId = Guid.Empty
         };
     }
@@ -69,7 +71,7 @@ public class UserFactory : IUserFactory
             Id = Guid.NewGuid(),
             UserName = dto.UserName,
             Email = dto.Email,
-            PasswordHash = dto.PasswordHash,
+            PasswordHash = dto.Password, // Fixed: Use Password property from UserCreateDto
             CreatedDate = DateTime.UtcNow,
             RoleId = dto.RoleId
         };
@@ -81,7 +83,7 @@ public class UserFactory : IUserFactory
         {
             UserName = entity.UserName,
             Email = entity.Email,
-            PasswordHash = entity.PasswordHash,
+            Password = entity.PasswordHash,
             RoleId = entity.RoleId
         };
     }
@@ -93,7 +95,6 @@ public class UserFactory : IUserFactory
             Id = entity.Id,
             UserName = entity.UserName,
             Email = entity.Email,
-            PasswordHash = entity.PasswordHash,
             CreatedDate = entity.CreatedDate,
             RoleId = entity.RoleId
         };
@@ -106,7 +107,7 @@ public class UserFactory : IUserFactory
             Id = entity.Id,
             UserName = entity.UserName,
             Email = entity.Email,
-            PasswordHash = entity.PasswordHash,
+            Password = entity.PasswordHash,
             RoleId = entity.RoleId
         };
     }
@@ -118,7 +119,7 @@ public class UserFactory : IUserFactory
             Id = dto.Id,
             UserName = dto.UserName,
             Email = dto.Email,
-            PasswordHash = dto.PasswordHash,
+            PasswordHash = dto.Password,
             RoleId = dto.RoleId
         };
     }

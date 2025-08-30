@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Infrastructure.Cache.Connection;
+using Infrastructure.Cache.Services;
+using Infrastructure.Interfaces.ICache.IServices;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Infrastructure.DependencyInjection

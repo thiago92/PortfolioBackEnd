@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Mappings
 {
+    // Fix: Remove navigation mapping for 'Role' since 'RolePermission' does not have a 'Role' property.
+    // Only keep the mapping for 'Permission', which exists.
+
     public class RolePermissionMap : IEntityTypeConfiguration<RolePermission>
     {
         public void Configure(EntityTypeBuilder<RolePermission> builder)
@@ -16,10 +19,11 @@ namespace Infrastructure.Mappings
             builder.Property(rp => rp.PermissionId)
                 .IsRequired();
 
-            builder.HasOne(rp => rp.Role)
-                .WithMany(r => r.RolePermissions)
-                .HasForeignKey(rp => rp.RoleId)
-                .OnDelete(DeleteBehavior.Cascade);
+            // Remove the following block:
+            // builder.HasOne(rp => rp.Role)
+            //     .WithMany(r => r.RolePermissions)
+            //     .HasForeignKey(rp => rp.RoleId)
+            //     .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(rp => rp.Permission)
                 .WithMany(p => p.RolePermissions)

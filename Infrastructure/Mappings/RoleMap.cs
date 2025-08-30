@@ -22,8 +22,9 @@ namespace Infrastructure.Mappings
                 .HasForeignKey(u => u.RoleId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Fix: Change .WithOne(rp => rp.Role) to .WithOne() since RolePermission does not have a Role navigation property.
             builder.HasMany(r => r.RolePermissions)
-                .WithOne(rp => rp.Role)
+                .WithOne()
                 .HasForeignKey(rp => rp.RoleId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
